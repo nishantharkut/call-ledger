@@ -121,6 +121,11 @@ class BankTransaction(models.Model):
         RECONCILED = "reconciled", "Reconciled"
         IGNORED = "ignored", "Ignored"
 
+    class SyncStatus(models.TextChoices):
+        NOT_SYNCED = "not_synced", "Not synced"
+        SYNCED = "synced", "Synced"
+        SYNC_FAILED = "sync_failed", "Sync failed"
+
     organization = models.ForeignKey(
         Organization, on_delete=models.PROTECT, related_name="transactions"
     )
@@ -133,6 +138,10 @@ class BankTransaction(models.Model):
         max_length=16, choices=Status.choices, default=Status.NEEDS_REVIEW
     )
     review_reason = models.TextField(blank=True)
+    airtable_record_id = models.CharField(max_length=255, blank=True)
+    airtable_sync_status = models.CharField(
+        max_length=16, choices=SyncStatus.choices, default=SyncStatus.NOT_SYNCED
+    )
 
     class Meta:
         ordering = ["-date", "-id"]

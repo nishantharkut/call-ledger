@@ -40,4 +40,5 @@ class BankTransactionSerializer(serializers.ModelSerializer):
         fields = [
             "id", "date", "description", "amount", "type", "bank_reference",
             "status", "review_reason", "matches",
+            "airtable_record_id", "airtable_sync_status",
         ]
