@@ -27,10 +27,20 @@ npm run dev
 Django runs at `http://127.0.0.1:8000`; Vite runs at `http://localhost:5173`.
 The local settings module configures PostgreSQL without changing Django's generated settings file.
 
+## Demo data
+
+```sh
+python backend/manage.py seed_demo --settings=config.local
+```
+
+This creates Northwind Ventures, Bluebird Capital, and their seven capital call line items.
+Running it again preserves existing records and funded amounts.
+
 ## Checks
 
 ```sh
 python backend/manage.py check --settings=config.local
+python backend/manage.py test --settings=config.local
 ```
 
 From `frontend/`:
