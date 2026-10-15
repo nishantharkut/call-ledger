@@ -59,6 +59,28 @@ payments; overpayments and ambiguous or unmatched credits need review. Suggestio
 and reasons are stored once at import. Re-uploading does not recalculate them.
 Importing does not change funded amounts.
 
+## Reconciliation API
+
+All endpoints require `X-Organization`. Missing or blank headers return `400`.
+Unknown organizations and records outside the selected organization return `404`.
+
+| Method | Path | Behavior |
+| --- | --- | --- |
+| GET | `/api/transactions/?page=1` | Transactions ordered by date and ID descending, with matches and reasons. Pages contain up to 50 rows. |
+| GET | `/api/line-items/` | All line items with investor, call details, amounts, and derived status. |
+| POST | `/api/matches/{id}/approve/` | Approve a proposed match and update funding atomically. |
+| POST | `/api/matches/{id}/reject/` | Reject a proposal. The last rejection leaves the payment needing review. |
+| POST | `/api/transactions/{id}/ignore/` | Ignore an active credit and reject its matches. |
+
+The transaction list returns `count`, `next`, `previous`, and `results`. The line-item
+list is an unpaginated array. Money values are decimal strings. Successful actions
+return `transaction_id` and `status`. Refresh both lists after an action.
+
+Approval locks the transaction, then the line item, and checks the current remaining
+amount before funding. A stale overpayment or repeated approval returns `409`
+without changing funding. Actions on rejected proposals or on reconciled or ignored
+transactions also return `409`. Only suggested or needs-review credits accept actions.
+
 ## Checks
 
 ```sh
