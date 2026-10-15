@@ -36,6 +36,26 @@ python backend/manage.py seed_demo --settings=config.local
 This creates Northwind Ventures, Bluebird Capital, and their seven capital call line items.
 Running it again preserves existing records and funded amounts.
 
+## CSV import
+
+`POST /api/imports/` accepts a multipart upload named `file` and requires
+`X-Organization: northwind` or `X-Organization: bluebird`. The response contains
+`imported`, `duplicates`, `duplicate_rows`, and `errors`. Row details include their
+physical file line number; the header is line 1.
+
+Files must use UTF-8 (an optional BOM is accepted) and be no larger than 10 MB.
+Required columns are `date,description,amount,type,reference`; column order does
+not matter. Extra named columns and blank lines are ignored. Duplicate or empty
+column names reject the file. Each data row must have the same width as the header.
+
+Amounts accept correctly grouped thousands separators and at most two decimal
+places, within the model's 18-digit precision. Bank references are trimmed,
+case-sensitive, and limited to 255 characters. Invalid rows report their first
+validation error. Invalid encoding or headers reject the whole file without writes.
+
+Debits are stored as ignored. Credits remain in review while matching is not yet
+implemented. Importing does not change funded amounts.
+
 ## Checks
 
 ```sh
