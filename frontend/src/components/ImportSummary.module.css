@@ -11,6 +11,26 @@
   font-weight: 500;
 }
 
+.summary[data-embedded] {
+  padding: 0;
+  border: 0;
+}
+
+.summary[data-embedded] .filename {
+  display: block;
+  margin: 0;
+}
+
+.dialogTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ledger-ink);
+}
+
+.detailsButton {
+  margin-top: 12px;
+}
+
 .summary p {
   margin: 8px 0 0;
   color: var(--ledger-muted);
@@ -54,5 +74,14 @@
   .filename {
     display: block;
     margin: 6px 0 0;
+  }
+}
+
+@media (any-pointer: coarse) {
+  .dialogButton,
+  .dialogClose,
+  .detailsButton {
+    min-height: 44px;
+    min-width: 44px;
   }
 }

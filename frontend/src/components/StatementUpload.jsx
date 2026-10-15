@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Alert, Button, FileInput } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
 import { Upload } from 'lucide-react'
 import styles from './StatementUpload.module.css'
+import { IMPORT_NOTIFICATION_ID } from '../utils/importFeedback'
 
 export function StatementUpload({ upload, pending, disabled, error }) {
   const [file, setFile] = useState(null)
@@ -15,7 +17,15 @@ export function StatementUpload({ upload, pending, disabled, error }) {
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      setValidationError('Choose a CSV file no larger than 10 MB.')
+      const message = 'Choose a CSV file no larger than 10 MB.'
+      setValidationError(message)
+      notifications.hide(IMPORT_NOTIFICATION_ID)
+      notifications.show({
+        id: IMPORT_NOTIFICATION_ID,
+        message,
+        color: 'red',
+        role: 'alert',
+      })
       return
     }
 

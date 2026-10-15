@@ -1,8 +1,10 @@
+import { useRef } from 'react'
 import { Button } from '@mantine/core'
 import { RefreshCw } from 'lucide-react'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
 import { StatementUpload } from '../components/StatementUpload'
 import { ImportSummary } from '../components/ImportSummary'
+import { ImportResultDialog } from '../components/ImportResultDialog'
 import { TransactionTable } from '../components/TransactionTable'
 import { LineItemTable } from '../components/LineItemTable'
 import { useWorkspaceData } from '../hooks/useWorkspaceData'
@@ -14,6 +16,7 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
   const workspace = useWorkspaceData(organization)
   const statement = useStatementImport(organization, workspace.changePage)
   const actions = useTransactionAction(organization, workspace.refresh)
+  const importDetailsButton = useRef(null)
 
   const mutating = statement.pending || Boolean(actions.pending)
   const refreshing = mutating || workspace.loading
@@ -21,6 +24,13 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
   // Block reviews if either list is stale so balances and proposals stay consistent.
   const disabled =
     refreshing || Boolean(workspace.transactions.error || workspace.lineItems.error)
+
+  function finishImportDialog() {
+    statement.notifyCompletedImport()
+
+    // The upload button becomes disabled after its file is cleared.
+    importDetailsButton.current?.focus()
+  }
 
   return (
     <>
@@ -51,7 +61,11 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
           </div>
 
           <StatementUpload {...statement} disabled={mutating} />
-          <ImportSummary summary={statement.summary} />
+          <ImportSummary
+            summary={statement.summary}
+            onOpen={statement.openDialog}
+            detailsButtonRef={importDetailsButton}
+          />
 
           <TransactionTable
             state={workspace.transactions}
@@ -72,6 +86,13 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
           />
         </main>
       </div>
+
+      <ImportResultDialog
+        summary={statement.summary}
+        opened={statement.dialogOpened}
+        onClose={statement.closeDialog}
+        onExited={finishImportDialog}
+      />
     </>
   )
 }

@@ -1,20 +1,38 @@
+import { Button } from '@mantine/core'
+import { getImportFeedback } from '../utils/importFeedback'
 import styles from './ImportSummary.module.css'
 
-export function ImportSummary({ summary }) {
+export function ImportSummary({ summary, onOpen, detailsButtonRef, embedded = false }) {
   if (!summary) {
     return null
   }
 
   return (
-    <section className={styles.summary} aria-label="Import results">
+    <section
+      className={styles.summary}
+      data-embedded={embedded || undefined}
+      aria-label={embedded ? 'Import details' : 'Import results'}
+    >
       <div role="status">
-        <strong>Import complete</strong>
+        {!embedded && <strong>{getImportFeedback(summary).title}</strong>}
         <span className={styles.filename}>{summary.filename}</span>
         <p>
           {summary.imported} imported · {summary.duplicates} duplicates skipped ·{' '}
           {summary.errors.length} invalid rows
         </p>
       </div>
+
+      {onOpen && (
+        <Button
+          variant="subtle"
+          size="compact-sm"
+          onClick={onOpen}
+          ref={detailsButtonRef}
+          className={styles.detailsButton}
+        >
+          View import details
+        </Button>
+      )}
 
       {/* Show invalid rows immediately so skipped payments are easy to identify. */}
       {summary.errors.length > 0 && (

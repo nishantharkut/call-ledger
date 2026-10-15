@@ -1,0 +1,35 @@
+.toast {
+  padding: 12px 14px;
+  background: var(--ledger-surface);
+  border: 1px solid var(--ledger-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgb(36 54 73 / 10%);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  margin-right: 10px;
+  background: transparent;
+  color: var(--notification-color);
+}
+
+.message {
+  color: var(--ledger-ink);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.close {
+  color: var(--ledger-muted);
+  margin-left: 10px;
+}
+
+@media (any-pointer: coarse) {
+  .close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
