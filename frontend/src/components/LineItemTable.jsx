@@ -2,6 +2,7 @@ import { Table } from '@mantine/core'
 import { DISPLAY_CURRENCY, formatDate, formatMoney } from '../utils/format'
 import { RequestFeedback } from './RequestFeedback'
 import { StatusBadge } from './StatusBadge'
+import { TableSkeleton } from './TableSkeleton'
 import styles from './LedgerTable.module.css'
 
 export function LineItemTable({ state, onRetry, disabled }) {
@@ -17,7 +18,16 @@ export function LineItemTable({ state, onRetry, disabled }) {
         )}
       </div>
 
-      <RequestFeedback {...state} onRetry={onRetry} disabled={disabled} />
+      <RequestFeedback
+        {...state}
+        loading={state.loading && Boolean(state.data)}
+        onRetry={onRetry}
+        disabled={disabled}
+      />
+
+      {!state.data && state.loading && !state.error && (
+        <TableSkeleton label="Loading capital calls" columns={7} />
+      )}
 
       {state.data?.length > 0 && (
         <p className={styles.scrollHint}>

@@ -3,7 +3,7 @@ import { ImportSummary } from './ImportSummary'
 import { getImportFeedback } from '../utils/importFeedback'
 import styles from './ImportSummary.module.css'
 
-export function ImportResultDialog({ summary, opened, onClose, onExited }) {
+export default function ImportResultDialog({ summary, opened, onClose, onExited }) {
   if (!summary) {
     return null
   }

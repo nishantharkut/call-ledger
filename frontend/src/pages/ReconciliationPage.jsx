@@ -1,16 +1,19 @@
-import { useRef } from 'react'
-import { Button } from '@mantine/core'
+import { lazy, Suspense, useRef } from 'react'
+import { Button, Text } from '@mantine/core'
 import { RefreshCw } from 'lucide-react'
 import { WorkspaceHeader } from '../components/WorkspaceHeader'
 import { StatementUpload } from '../components/StatementUpload'
 import { ImportSummary } from '../components/ImportSummary'
-import { ImportResultDialog } from '../components/ImportResultDialog'
+import { ImportDialogBoundary } from '../components/ImportDialogBoundary'
 import { TransactionTable } from '../components/TransactionTable'
 import { LineItemTable } from '../components/LineItemTable'
 import { useWorkspaceData } from '../hooks/useWorkspaceData'
 import { useStatementImport } from '../hooks/useStatementImport'
 import { useTransactionAction } from '../hooks/useTransactionAction'
 import styles from './ReconciliationPage.module.css'
+
+// The results dialog is not needed for the initial workspace render.
+const ImportResultDialog = lazy(() => import('../components/ImportResultDialog'))
 
 export function ReconciliationPage({ organization, onOrganizationChange }) {
   const workspace = useWorkspaceData(organization)
@@ -67,6 +70,25 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
             detailsButtonRef={importDetailsButton}
           />
 
+          {statement.summary && (
+            <ImportDialogBoundary>
+              <Suspense
+                fallback={
+                  <Text role="status" size="sm">
+                    Opening import details
+                  </Text>
+                }
+              >
+                <ImportResultDialog
+                  summary={statement.summary}
+                  opened={statement.dialogOpened}
+                  onClose={statement.closeDialog}
+                  onExited={finishImportDialog}
+                />
+              </Suspense>
+            </ImportDialogBoundary>
+          )}
+
           <TransactionTable
             state={workspace.transactions}
             page={workspace.page}
@@ -86,13 +108,6 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
           />
         </main>
       </div>
-
-      <ImportResultDialog
-        summary={statement.summary}
-        opened={statement.dialogOpened}
-        onClose={statement.closeDialog}
-        onExited={finishImportDialog}
-      />
     </>
   )
 }

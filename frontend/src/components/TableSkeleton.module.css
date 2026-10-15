@@ -1,0 +1,31 @@
+.surface {
+  overflow: hidden;
+  min-width: 0;
+  max-width: 100%;
+  border: 1px solid var(--ledger-border);
+  border-radius: 8px;
+  background: var(--ledger-surface);
+}
+
+.table {
+  min-width: 850px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+  align-items: center;
+  gap: 24px;
+  min-height: 80px;
+  padding: 20px 16px;
+  border-bottom: 1px solid var(--ledger-border);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.heading {
+  min-height: 48px;
+  background: #f7f8fa;
+}

@@ -1,6 +1,7 @@
 import { Pagination, Table } from '@mantine/core'
 import { TransactionRow } from './TransactionRow'
 import { RequestFeedback } from './RequestFeedback'
+import { TableSkeleton } from './TableSkeleton'
 import { DISPLAY_CURRENCY } from '../utils/format'
 import styles from './LedgerTable.module.css'
 
@@ -31,7 +32,16 @@ export function TransactionTable({
         {data && <span className={styles.count}>{data.count} transactions</span>}
       </div>
 
-      <RequestFeedback {...state} onRetry={onRetry} disabled={retryDisabled} />
+      <RequestFeedback
+        {...state}
+        loading={state.loading && Boolean(data)}
+        onRetry={onRetry}
+        disabled={retryDisabled}
+      />
+
+      {!data && state.loading && !state.error && (
+        <TableSkeleton label="Loading transactions" columns={6} />
+      )}
 
       {data?.results.length > 0 && (
         <p className={styles.scrollHint}>
