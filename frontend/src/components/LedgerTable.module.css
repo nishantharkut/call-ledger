@@ -1,0 +1,320 @@
+.sectionHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 2px 0 16px;
+}
+
+.sectionHeading h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.4px;
+  color: var(--ledger-ink);
+}
+
+.count {
+  font-size: 13px;
+  color: var(--ledger-muted);
+  white-space: nowrap;
+}
+
+.surface {
+  min-width: 0;
+  max-width: 100%;
+  background: var(--ledger-surface);
+  border: 1px solid var(--ledger-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scroll {
+  overflow: auto;
+  width: 100%;
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+  scrollbar-color: #c4ced8 #f4f6f8;
+  scrollbar-width: thin;
+}
+
+.transactionScroll {
+  max-height: 660px;
+}
+
+.table {
+  min-width: 1190px;
+  font-size: 14px;
+  color: var(--ledger-ink);
+}
+
+.table thead {
+  background: #f7f8fa;
+}
+
+.table th {
+  font-weight: 500;
+  color: #56616d;
+  font-size: 13px;
+  white-space: nowrap;
+  border-color: var(--ledger-border);
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* Nested match headings must not stick over the transaction headings. */
+.transactionScroll > .table > thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.table td {
+  vertical-align: top;
+  border-color: #e8edf1;
+  line-height: 1.5;
+  padding-top: 17px;
+  padding-bottom: 17px;
+}
+
+.table > tbody > tr:hover > td {
+  background-color: #fafbfc;
+}
+
+.table strong {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ledger-ink);
+}
+
+.money {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.date {
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--ledger-muted);
+  width: 110px;
+}
+
+.description {
+  width: 28%;
+  min-width: 245px;
+  max-width: 310px;
+  overflow-wrap: anywhere;
+}
+
+.reference {
+  display: block;
+  margin-top: 7px;
+  color: var(--ledger-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.match {
+  width: 29%;
+  min-width: 270px;
+  max-width: 350px;
+}
+
+.secondary {
+  display: block;
+  font-size: 13px;
+  color: var(--ledger-muted);
+  margin-top: 5px;
+  line-height: 1.5;
+}
+
+.reason {
+  display: block;
+  font-size: 14px;
+  color: #5b6570;
+  margin-top: 8px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  min-width: 216px;
+}
+
+.actionButton {
+  width: 5.5rem;
+  height: 2rem;
+  padding-inline: 0.625rem;
+}
+
+.feedback {
+  max-width: 184px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.feedback[data-kind='teal'] {
+  color: #247448;
+}
+
+.feedback[data-kind='red'] {
+  color: #a33333;
+}
+
+.feedback[data-kind='yellow'] {
+  color: #76500b;
+}
+
+.code {
+  font-size: 13px;
+  white-space: nowrap;
+  color: #52677c;
+}
+
+.lineItems {
+  min-width: 1000px;
+}
+
+.lineItems td {
+  vertical-align: middle;
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.pagination {
+  flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  gap: 12px;
+  border-top: 1px solid var(--ledger-border);
+  color: var(--ledger-muted);
+  font-size: 13px;
+  background: #fff;
+}
+
+@media (any-pointer: coarse) {
+  .retryButton {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .table button,
+  .pagination button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .candidateTable button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 46px 20px;
+  border: 1px solid var(--ledger-border);
+  border-radius: 8px;
+  background: var(--ledger-surface);
+}
+
+.empty h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 10px;
+}
+
+.empty p {
+  font-size: 14px;
+  color: var(--ledger-muted);
+  margin: 0;
+}
+
+.expandedCell {
+  padding: 0 !important;
+}
+
+.candidates {
+  padding: 22px 24px;
+  background: #fff;
+  border-top: 1px solid #dde3e8;
+  border-bottom: 1px solid #dde3e8;
+  border-left: 3px solid #647b8d;
+}
+
+.candidateHeading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #45515d;
+  margin: 0 0 16px;
+}
+
+.candidateReference {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ledger-muted);
+  overflow-wrap: anywhere;
+}
+
+.candidateTable {
+  font-size: 14px;
+}
+
+.candidateTable td {
+  padding: 16px 12px;
+  background: #fff;
+}
+
+.candidateTable th {
+  padding: 11px 12px;
+  background: #f5f7f8;
+}
+
+.candidateTable > tbody > tr:hover > td {
+  background: #f8faf9;
+}
+
+.candidateTable .reason {
+  max-width: 340px;
+  margin-top: 0;
+}
+
+.scrollHint {
+  display: none;
+}
+
+@media (max-width: 1000px) {
+  .scrollHint {
+    display: block;
+    color: var(--ledger-muted);
+    font-size: 13px;
+    margin: -2px 0 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .sectionHeading {
+    align-items: flex-start;
+  }
+
+  .count {
+    margin-top: 3px;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+  }
+
+  .transactionScroll {
+    max-height: 570px;
+  }
+}

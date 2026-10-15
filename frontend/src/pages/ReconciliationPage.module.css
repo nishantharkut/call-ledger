@@ -1,0 +1,161 @@
+.shell {
+  width: 100%;
+  min-width: 0;
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 0 40px 56px;
+}
+
+.headerSurface {
+  background: var(--ledger-navigation);
+}
+
+.header {
+  max-width: 1520px;
+  margin: 0 auto;
+  padding: 0 40px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 42px;
+  min-height: 78px;
+}
+
+.brand {
+  color: var(--ledger-navigation-text);
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.7px;
+  white-space: nowrap;
+}
+
+.header a:focus-visible {
+  outline-color: var(--ledger-navigation-text);
+}
+
+.organizationGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.organizationLabel {
+  font-size: 13px;
+  color: var(--ledger-navigation-muted);
+}
+
+.organization {
+  width: 225px;
+  min-width: 0;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+
+.intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 30px;
+  gap: 16px;
+}
+
+.intro h1 {
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.9px;
+  margin: 0;
+  color: var(--ledger-ink);
+}
+
+.intro > div {
+  min-width: 0;
+}
+
+.refreshButton {
+  flex-shrink: 0;
+}
+
+.main > section {
+  scroll-margin-top: 24px;
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 1000px) {
+  .shell {
+    padding: 0 24px 40px;
+  }
+
+  .header {
+    padding-inline: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .shell {
+    padding: 0 16px 32px;
+  }
+
+  .header {
+    min-height: auto;
+    padding: 16px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .organizationGroup {
+    width: 100%;
+    margin-left: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 7px;
+  }
+
+  .organization {
+    width: 100%;
+  }
+
+  .intro {
+    padding-top: 24px;
+    align-items: center;
+  }
+
+  .intro h1 {
+    font-size: clamp(22px, 6vw, 27px);
+    overflow-wrap: anywhere;
+  }
+
+  .refreshButton {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+
+  .refreshLabel {
+    display: none;
+  }
+
+  .refreshButton :global(.mantine-Button-section) {
+    margin: 0;
+  }
+}
+
+@media (any-pointer: coarse) {
+  .refreshButton {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .organization select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}

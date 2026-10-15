@@ -7,9 +7,15 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"*.{js,cjs,json,html}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,css}\" \"*.{js,cjs,json,html}\"",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/commissioner": "^5.3.0",
+    "@mantine/core": "^9.7.2",
+    "@mantine/hooks": "^9.7.2",
+    "lucide-react": "^1.57.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
@@ -18,6 +24,9 @@
     "@types/react-dom": "^19.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "oxlint": "^1.81.0",
+    "postcss": "^8.5.30",
+    "postcss-preset-mantine": "^1.18.0",
+    "prettier": "3.6.2",
     "vite": "^8.3.0"
   }
 }
