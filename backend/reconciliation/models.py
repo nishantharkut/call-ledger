@@ -51,7 +51,7 @@ class CapitalCall(models.Model):
 
 
 class LineItem(models.Model):
-    # Keep tenant filtering direct; clean() checks the related records agree.
+    # Filter tenants directly. clean() checks that related records share the tenant.
     organization = models.ForeignKey(
         Organization, on_delete=models.PROTECT, related_name="line_items"
     )

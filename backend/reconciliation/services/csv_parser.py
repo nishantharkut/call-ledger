@@ -79,7 +79,7 @@ def read_statement(upload):
 
     rows, errors = [], []
     while True:
-        # A quoted field may span lines; report the start of its record.
+        # Report the record's starting line even when a quoted field spans lines.
         line = reader.line_num + 1
         try:
             fields = next(reader)

@@ -3,6 +3,7 @@ from django.db import transaction
 from reconciliation.models import BankTransaction, Organization
 
 from .csv_parser import read_statement
+from .matching import match_transactions
 
 
 def import_statement(organization, upload):
@@ -29,10 +30,12 @@ def import_statement(organization, upload):
                       else BankTransaction.Status.NEEDS_REVIEW)
             transactions.append(BankTransaction(
                 organization=organization, **values, status=status,
-                review_reason="" if is_debit else "Awaiting matching.",
             ))
+            # Include accepted rows immediately to catch duplicates within this file.
             existing.add(reference)
         BankTransaction.objects.bulk_create(transactions, batch_size=500)
+        # Save matches using the new row IDs within this transaction.
+        match_transactions(organization, transactions)
 
     return {
         "imported": len(transactions),

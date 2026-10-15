@@ -53,8 +53,11 @@ places, within the model's 18-digit precision. Bank references are trimmed,
 case-sensitive, and limited to 255 characters. Invalid rows report their first
 validation error. Invalid encoding or headers reject the whole file without writes.
 
-Debits are stored as ignored. Credits remain in review while matching is not yet
-implemented. Importing does not change funded amounts.
+Debits are stored as ignored. Credits first match eligible wire references, then
+investor names with an exact remaining amount. A single reference permits partial
+payments; overpayments and ambiguous or unmatched credits need review. Suggestions
+and reasons are stored once at import. Re-uploading does not recalculate them.
+Importing does not change funded amounts.
 
 ## Checks
 
