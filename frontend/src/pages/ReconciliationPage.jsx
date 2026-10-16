@@ -17,7 +17,7 @@ const ImportResultDialog = lazy(() => import('../components/ImportResultDialog')
 
 export function ReconciliationPage({ organization, onOrganizationChange }) {
   const workspace = useWorkspaceData(organization)
-  const statement = useStatementImport(organization, workspace.changePage)
+  const statement = useStatementImport(organization, workspace.refreshPage)
   const actions = useTransactionAction(organization, workspace.refresh)
   const importDetailsButton = useRef(null)
 
@@ -46,9 +46,7 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
       <div className={styles.shell}>
         <main className={styles.main}>
           <div className={styles.intro}>
-            <div>
-              <h1>Bank reconciliation</h1>
-            </div>
+            <h1>Bank reconciliation</h1>
             <Button
               variant="subtle"
               color="gray"
@@ -90,6 +88,8 @@ export function ReconciliationPage({ organization, onOrganizationChange }) {
           )}
 
           <TransactionTable
+            list={workspace.transactionList}
+            controlsDisabled={mutating}
             state={workspace.transactions}
             page={workspace.page}
             onPageChange={workspace.changePage}

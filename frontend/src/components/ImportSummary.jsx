@@ -17,8 +17,9 @@ export function ImportSummary({ summary, onOpen, detailsButtonRef, embedded = fa
         {!embedded && <strong>{getImportFeedback(summary).title}</strong>}
         <span className={styles.filename}>{summary.filename}</span>
         <p>
-          {summary.imported} imported · {summary.duplicates} duplicates skipped ·{' '}
-          {summary.errors.length} invalid rows
+          {summary.imported} imported · {summary.duplicates}{' '}
+          {summary.duplicates === 1 ? 'duplicate' : 'duplicates'} skipped ·{' '}
+          {summary.errors.length} invalid {summary.errors.length === 1 ? 'row' : 'rows'}
         </p>
       </div>
 
@@ -37,7 +38,10 @@ export function ImportSummary({ summary, onOpen, detailsButtonRef, embedded = fa
       {/* Show invalid rows immediately so skipped payments are easy to identify. */}
       {summary.errors.length > 0 && (
         <details open className={styles.details}>
-          <summary>Invalid rows ({summary.errors.length})</summary>
+          <summary>
+            Invalid {summary.errors.length === 1 ? 'row' : 'rows'} (
+            {summary.errors.length})
+          </summary>
           <ul>
             {summary.errors.map((error, index) => (
               <li key={`${error.line}-${index}`}>
@@ -50,7 +54,10 @@ export function ImportSummary({ summary, onOpen, detailsButtonRef, embedded = fa
 
       {summary.duplicate_rows.length > 0 && (
         <details className={styles.details}>
-          <summary>Skipped duplicates ({summary.duplicates})</summary>
+          <summary>
+            Skipped {summary.duplicates === 1 ? 'duplicate' : 'duplicates'} (
+            {summary.duplicates})
+          </summary>
           <ul>
             {summary.duplicate_rows.map((row) => (
               <li key={row.line}>

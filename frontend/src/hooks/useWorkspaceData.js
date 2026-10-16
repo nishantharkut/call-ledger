@@ -1,80 +1,65 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getLineItems, getTransactions } from '../api/reconciliation'
-
-const initial = { data: null, loading: true, error: '' }
-
-function updateListState(result, setState) {
-  if (result.status === 'fulfilled') {
-    setState({ data: result.value, loading: false, error: '' })
-    return
-  }
-
-  // Keep the last loaded rows visible when refreshing fails.
-  setState((previous) => ({
-    ...previous,
-    loading: false,
-    error: result.reason.message,
-  }))
-}
+import { getLineItems } from '../api/reconciliation'
+import { useTransactionList } from './useTransactionList'
 
 export function useWorkspaceData(organization) {
-  const [transactions, setTransactions] = useState(initial)
-  const [lineItems, setLineItems] = useState(initial)
-  const [page, setPage] = useState(1)
+  const transactionList = useTransactionList(organization)
+  const [lineItems, setLineItems] = useState({ data: null, loading: true, error: '' })
   const activeRequest = useRef(null)
 
-  const load = useCallback(
-    (requestedPage) => {
-      activeRequest.current?.abort()
+  const loadLineItems = useCallback(() => {
+    activeRequest.current?.abort()
+    const controller = new AbortController()
+    activeRequest.current = controller
 
-      const controller = new AbortController()
-      activeRequest.current = controller
-
-      // One failed list should not discard the other list's response.
-      return Promise.allSettled([
-        getTransactions(organization, requestedPage, controller.signal),
-        getLineItems(organization, controller.signal),
-      ]).then(([transactionResult, lineItemResult]) => {
-        // An older organization or page request must not replace the current rows.
+    return getLineItems(organization, controller.signal)
+      .then((data) => {
         if (controller.signal.aborted) {
           return false
         }
 
-        if (transactionResult.status === 'fulfilled') {
-          setPage(requestedPage)
+        setLineItems({ data, loading: false, error: '' })
+        return true
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted) {
+          setLineItems((previous) => ({
+            ...previous,
+            loading: false,
+            error: error.message,
+          }))
         }
 
-        updateListState(transactionResult, setTransactions)
-        updateListState(lineItemResult, setLineItems)
-
-        return (
-          transactionResult.status === 'fulfilled' &&
-          lineItemResult.status === 'fulfilled'
-        )
+        return false
       })
-    },
-    [organization],
-  )
+  }, [organization])
 
   useEffect(() => {
-    load(1)
+    loadLineItems()
 
     return () => activeRequest.current?.abort()
-  }, [load])
+  }, [loadLineItems])
 
-  function changePage(requestedPage) {
-    setTransactions((previous) => ({ ...previous, loading: true, error: '' }))
+  async function refreshPage(requestedPage) {
     setLineItems((previous) => ({ ...previous, loading: true, error: '' }))
 
-    return load(requestedPage)
+    // Imports and reviews refresh both lists. Browsing only reloads transactions.
+    const results = await Promise.all([
+      transactionList.loadPage(requestedPage),
+      loadLineItems(),
+    ])
+
+    return results.every(Boolean)
   }
 
   return {
-    transactions,
+    transactions: transactionList.state,
+    transactionList,
     lineItems,
-    page,
-    loading: transactions.loading || lineItems.loading,
-    refresh: () => changePage(page),
-    changePage,
+    page: transactionList.page,
+    loading: transactionList.loading || lineItems.loading,
+    refresh: () => refreshPage(transactionList.page),
+    refreshPage,
+    changePage: transactionList.loadPage,
   }
 }

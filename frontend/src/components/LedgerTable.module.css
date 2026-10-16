@@ -109,6 +109,10 @@
   overflow-wrap: anywhere;
 }
 
+.bankDescription {
+  text-transform: uppercase;
+}
+
 .reference {
   display: block;
   margin-top: 7px;
@@ -197,7 +201,35 @@
   background: #fff;
 }
 
+.pageDetails {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.pageSize {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pageSize label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ledger-muted);
+}
+
+.pageSize select {
+  width: 76px;
+}
+
 @media (any-pointer: coarse) {
+  .pageSize select {
+    min-height: 44px;
+  }
+
   .retryButton {
     min-height: 44px;
     min-width: 44px;

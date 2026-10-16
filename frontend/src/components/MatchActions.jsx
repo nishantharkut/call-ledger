@@ -1,4 +1,4 @@
-import { Button, Group } from '@mantine/core'
+import { Button, Group, Text } from '@mantine/core'
 import styles from './LedgerTable.module.css'
 
 export function MatchActions({ match, payment, onAction, disabled, pending }) {
@@ -7,7 +7,11 @@ export function MatchActions({ match, payment, onAction, disabled, pending }) {
     match.status !== 'proposed' ||
     !['suggested', 'needs_review'].includes(payment.status)
   ) {
-    return null
+    return (
+      <Text size="sm" c="dimmed">
+        No action needed
+      </Text>
+    )
   }
 
   return (

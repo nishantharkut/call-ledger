@@ -10,6 +10,11 @@ export function useStatementImport(organization, refresh) {
   const [dialogOpened, setDialogOpened] = useState(false)
   const completedFeedback = useRef(null)
 
+  function clearError() {
+    setError('')
+    notifications.hide(IMPORT_NOTIFICATION_ID)
+  }
+
   function notifyCompletedImport() {
     if (completedFeedback.current) {
       notifications.show(completedFeedback.current)
@@ -24,11 +29,10 @@ export function useStatementImport(organization, refresh) {
 
   async function upload(file) {
     setPending(true)
-    setError('')
+    clearError()
     setSummary(null)
     setDialogOpened(false)
     completedFeedback.current = null
-    notifications.hide(IMPORT_NOTIFICATION_ID)
 
     try {
       const result = await importStatement(organization, file)
@@ -69,6 +73,7 @@ export function useStatementImport(organization, refresh) {
     summary,
     pending,
     error,
+    clearError,
     dialogOpened,
     openDialog,
     closeDialog: () => setDialogOpened(false),

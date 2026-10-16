@@ -41,11 +41,16 @@ def match_payment(payment, line_items):
     description = normalize_reference(payment.description)
     bank_reference = normalize_reference(payment.bank_reference)
     reference_hits = []
-    for item in eligible:
+    # Future references explain unmatched payments but cannot become proposals.
+    future_reference_hits = []
+    for item in line_items:
         reference = normalize_reference(item.expected_reference)
         # Search fields separately so their boundary cannot form a false reference.
         if reference and (reference in description or reference in bank_reference):
-            reference_hits.append(item)
+            if item.capital_call.call_date <= payment.date:
+                reference_hits.append(item)
+            else:
+                future_reference_hits.append(item)
 
     if reference_hits:
         # Any reference hit takes precedence, including ambiguous hits and overpayments.
@@ -76,6 +81,13 @@ def match_payment(payment, line_items):
         payment.review_reason = ""
     elif candidates:
         payment.review_reason = review_reason
+    elif future_reference_hits:
+        payment.review_reason = " ".join(
+            f"Reference {item.expected_reference} found, but its call date "
+            f"{item.capital_call.call_date.isoformat()} is after the transaction date "
+            f"{payment.date.isoformat()}."
+            for item in future_reference_hits
+        )
     else:
         payment.review_reason = (
             "No eligible reference or investor name with matching remaining amount was found."

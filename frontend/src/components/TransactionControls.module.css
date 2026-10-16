@@ -1,0 +1,52 @@
+.controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 170px 170px auto;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.controls > * {
+  min-width: 0;
+}
+
+.controls label {
+  margin-bottom: 5px;
+  color: var(--ledger-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.controls input,
+.controls select {
+  background: var(--ledger-surface);
+  border-color: var(--ledger-border);
+}
+
+@media (max-width: 800px) {
+  .controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .search {
+    grid-column: 1 / -1;
+  }
+
+  .controls > button {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 380px) {
+  .controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (any-pointer: coarse) {
+  .controls input,
+  .controls select,
+  .controls button {
+    min-height: 44px;
+  }
+}

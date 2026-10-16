@@ -62,8 +62,22 @@ async function request(path, organization, options = {}) {
   return body
 }
 
-export function getTransactions(organization, page, signal) {
-  return request(`transactions/?page=${page}`, organization, { signal })
+export function getTransactions(organization, page, filters, signal) {
+  const params = new URLSearchParams({
+    page,
+    page_size: filters.pageSize,
+    ordering: filters.ordering,
+  })
+
+  if (filters.search) {
+    params.set('search', filters.search)
+  }
+
+  if (filters.status) {
+    params.set('status', filters.status)
+  }
+
+  return request(`transactions/?${params}`, organization, { signal })
 }
 
 export function getLineItems(organization, signal) {

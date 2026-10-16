@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import FormParser, MultiPartParser
@@ -7,8 +8,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .organization import get_organization
+from .filters import TransactionFilter
 from .models import BankTransaction
+from .organization import get_organization
 from .queries import line_items_for, matches_for
 from .serializers import BankTransactionSerializer, LineItemSerializer, StatementUploadSerializer
 from .services.actions import approve_match, ignore_transaction, reject_match
@@ -41,11 +43,15 @@ class StatementImportView(OrganizationMixin, APIView):
 
 class TransactionPagination(PageNumberPagination):
     page_size = 50
+    page_size_query_param = "page_size"
+    max_page_size = 500
 
 
 class TransactionListView(OrganizationMixin, ListAPIView):
     serializer_class = BankTransactionSerializer
     pagination_class = TransactionPagination
+    filter_backends = [TransactionFilter, SearchFilter]
+    search_fields = ["description", "bank_reference"]
 
     def get_queryset(self):
         # Fetch nested candidates together instead of issuing queries for each table row.

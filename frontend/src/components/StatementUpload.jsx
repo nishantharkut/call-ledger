@@ -5,7 +5,7 @@ import { Upload } from 'lucide-react'
 import styles from './StatementUpload.module.css'
 import { IMPORT_NOTIFICATION_ID } from '../utils/importFeedback'
 
-export function StatementUpload({ upload, pending, disabled, error }) {
+export function StatementUpload({ upload, pending, disabled, error, clearError }) {
   const [file, setFile] = useState(null)
   const [validationError, setValidationError] = useState('')
 
@@ -55,6 +55,8 @@ export function StatementUpload({ upload, pending, disabled, error }) {
           onChange={(value) => {
             setFile(value)
             setValidationError('')
+            // A replacement file should not inherit the previous upload's error.
+            clearError()
           }}
           clearable
           disabled={disabled}

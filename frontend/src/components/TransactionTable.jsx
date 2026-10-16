@@ -1,12 +1,10 @@
-import { Pagination, Table } from '@mantine/core'
+import { NativeSelect, Pagination, Table } from '@mantine/core'
 import { TransactionRow } from './TransactionRow'
 import { RequestFeedback } from './RequestFeedback'
 import { TableSkeleton } from './TableSkeleton'
+import { TransactionControls } from './TransactionControls'
 import { DISPLAY_CURRENCY } from '../utils/format'
 import styles from './LedgerTable.module.css'
-
-// Keep this aligned with TransactionPagination.page_size on the API.
-const PAGE_SIZE = 50
 
 export function TransactionTable({
   state,
@@ -18,8 +16,12 @@ export function TransactionTable({
   retryDisabled,
   pending,
   message,
+  list,
+  controlsDisabled,
 }) {
   const data = state.data
+  // Keep the range aligned with visible rows while a new page size loads.
+  const loadedPageSize = state.pageSize
 
   return (
     <section
@@ -29,15 +31,20 @@ export function TransactionTable({
     >
       <div className={styles.sectionHeading}>
         <h2 id="transactions-heading">Transactions</h2>
-        {data && <span className={styles.count}>{data.count} transactions</span>}
+        {data && (
+          <span className={styles.count}>
+            {data.count} {data.count === 1 ? 'transaction' : 'transactions'}
+          </span>
+        )}
       </div>
 
-      <RequestFeedback
-        {...state}
+      <TransactionControls
+        list={list}
+        disabled={controlsDisabled}
         loading={state.loading && Boolean(data)}
-        onRetry={onRetry}
-        disabled={retryDisabled}
       />
+
+      <RequestFeedback error={state.error} onRetry={onRetry} disabled={retryDisabled} />
 
       {!data && state.loading && !state.error && (
         <TableSkeleton label="Loading transactions" columns={6} />
@@ -85,13 +92,24 @@ export function TransactionTable({
             </Table>
           </div>
           <div className={styles.pagination}>
-            <span>
-              {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, data.count)} of{' '}
-              {data.count}
-            </span>
-            {data.count > PAGE_SIZE && (
+            <div className={styles.pageDetails}>
+              <span>
+                {(page - 1) * loadedPageSize + 1}–
+                {Math.min(page * loadedPageSize, data.count)} of {data.count}
+              </span>
+              <NativeSelect
+                label="Rows per page"
+                value={String(list.pageSize)}
+                onChange={(event) => list.setPageSize(Number(event.currentTarget.value))}
+                data={['50', '100', '500']}
+                disabled={controlsDisabled}
+                size="xs"
+                className={styles.pageSize}
+              />
+            </div>
+            {data.count > loadedPageSize && (
               <Pagination
-                total={Math.ceil(data.count / PAGE_SIZE)}
+                total={Math.ceil(data.count / loadedPageSize)}
                 value={page}
                 onChange={onPageChange}
                 disabled={disabled}
@@ -111,8 +129,12 @@ export function TransactionTable({
 
       {data?.results.length === 0 && !state.loading && !state.error && (
         <div className={styles.empty}>
-          <h3>No transactions yet</h3>
-          <p>Import a bank statement to start reconciling payments.</p>
+          <h3>{list.filtered ? 'No transactions found' : 'No transactions yet'}</h3>
+          <p>
+            {list.filtered
+              ? 'Try another search or clear the filters.'
+              : 'Import a bank statement to start reconciling payments.'}
+          </p>
         </div>
       )}
     </section>

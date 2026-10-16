@@ -39,7 +39,7 @@ export function TransactionRow({ payment, onAction, disabled, pending, feedback 
       <Table.Tr>
         <Table.Td className={styles.date}>{formatDate(payment.date)}</Table.Td>
         <Table.Td className={styles.description}>
-          <span>{payment.description}</span>
+          <span className={styles.bankDescription}>{payment.description}</span>
           <span className={styles.reference}>Bank ref: {payment.bank_reference}</span>
         </Table.Td>
         <Table.Td className={styles.money}>{formatMoney(payment.amount)}</Table.Td>
@@ -87,7 +87,7 @@ export function TransactionRow({ payment, onAction, disabled, pending, feedback 
         </Table.Td>
         <Table.Td className={styles.actions}>
           <Stack gap={8} align="flex-start">
-            {single && (
+            {single?.status === 'proposed' && active && (
               <MatchActions
                 match={single}
                 payment={payment}
@@ -112,7 +112,13 @@ export function TransactionRow({ payment, onAction, disabled, pending, feedback 
               </Button>
             )}
 
-            {feedback && (
+            {!active && (
+              <Text size="sm" c="dimmed">
+                No action needed
+              </Text>
+            )}
+
+            {feedback && (active || feedback.color !== 'teal') && (
               <Text
                 size="xs"
                 className={styles.feedback}

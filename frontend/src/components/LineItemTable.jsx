@@ -13,7 +13,8 @@ export function LineItemTable({ state, onRetry, disabled }) {
         <h2 id="calls-heading">Capital calls</h2>
         {state.data && (
           <span className={styles.count}>
-            {state.data.length} line items · {DISPLAY_CURRENCY}
+            {state.data.length} line {state.data.length === 1 ? 'item' : 'items'} ·{' '}
+            {DISPLAY_CURRENCY}
           </span>
         )}
       </div>
