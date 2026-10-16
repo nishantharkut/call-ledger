@@ -1,11 +1,15 @@
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
 from io import StringIO
+from threading import Barrier
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
-from rest_framework.test import APITestCase
+from django.db import close_old_connections, connection
+from django.test import TransactionTestCase, override_settings
+from rest_framework.test import APIClient, APITestCase
 
-from reconciliation.models import BankTransaction, LineItem
+from reconciliation.models import BankTransaction, LineItem, Match, Organization
 
 
 class ReconciliationTests(APITestCase):
@@ -71,3 +75,101 @@ class ReconciliationTests(APITestCase):
         self.assertEqual(response.status_code, 404)
         foreign_match.line_item.refresh_from_db()
         self.assertEqual(foreign_match.line_item.amount_funded, Decimal("0.00"))
+
+    def test_approval_rechecks_remaining_after_another_payment(self):
+        first = self.upload_payment("northwind", "CC1001", "20000", "FIRST")
+        second = self.upload_payment("northwind", "CC1001", "20000", "SECOND")
+        first_match, second_match = first.matches.get(), second.matches.get()
+
+        approved = self.client.post(
+            f"/api/matches/{first_match.pk}/approve/", HTTP_X_ORGANIZATION="northwind",
+        )
+        stale = self.client.post(
+            f"/api/matches/{second_match.pk}/approve/", HTTP_X_ORGANIZATION="northwind",
+        )
+
+        self.assertEqual(approved.status_code, 200)
+        self.assertEqual(stale.status_code, 409)
+        first_match.line_item.refresh_from_db()
+        second_match.refresh_from_db()
+        self.assertEqual(first_match.line_item.amount_funded, Decimal("20000.00"))
+        self.assertEqual(first_match.line_item.status, "partially_funded")
+        self.assertEqual(second_match.status, "proposed")
+
+    def test_rejecting_the_last_proposal_requires_review(self):
+        payment = self.upload_payment("northwind", "CC1001", "1000", "REJECT")
+        match = payment.matches.get()
+        response = self.client.post(
+            f"/api/matches/{match.pk}/reject/", HTTP_X_ORGANIZATION="northwind",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payment.refresh_from_db()
+        match.refresh_from_db()
+        self.assertEqual(payment.status, "needs_review")
+        self.assertTrue(payment.review_reason)
+        self.assertEqual(match.status, "rejected")
+        self.assertEqual(match.line_item.amount_funded, Decimal("0.00"))
+
+    def test_ignore_rejects_proposals_but_cannot_change_reconciled_payments(self):
+        payment = self.upload_payment("northwind", "Oakridge Holdings", "15000", "IGNORE")
+        response = self.client.post(
+            f"/api/transactions/{payment.pk}/ignore/", HTTP_X_ORGANIZATION="northwind",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payment.refresh_from_db()
+        self.assertEqual(payment.status, "ignored")
+        self.assertFalse(payment.matches.exclude(status="rejected").exists())
+
+        reconciled = self.upload_payment("northwind", "CC1001", "1000", "KEEP")
+        match = reconciled.matches.get()
+        self.assertEqual(self.client.post(
+            f"/api/matches/{match.pk}/approve/", HTTP_X_ORGANIZATION="northwind",
+        ).status_code, 200)
+        refused = self.client.post(
+            f"/api/transactions/{reconciled.pk}/ignore/", HTTP_X_ORGANIZATION="northwind",
+        )
+
+        self.assertEqual(refused.status_code, 409)
+        reconciled.refresh_from_db()
+        self.assertEqual(reconciled.status, "reconciled")
+        item = LineItem.objects.get(pk=match.line_item_id)
+        self.assertEqual(item.amount_funded, Decimal("1000.00"))
+
+
+@override_settings(AIRTABLE_PAT="", AIRTABLE_BASE_ID="", AIRTABLE_TABLE_NAME="")
+class ConcurrentApprovalTests(TransactionTestCase):
+    def test_simultaneous_approval_funds_the_line_item_once(self):
+        call_command("seed_demo", stdout=StringIO())
+        item = LineItem.objects.get(expected_reference="CC-1001")
+        payment = BankTransaction.objects.create(
+            organization=Organization.objects.get(slug="northwind"),
+            date="2026-04-15", description="CC1001", amount=Decimal("1000.00"),
+            type="credit", bank_reference="CONCURRENT", status="suggested",
+        )
+        match = Match.objects.create(
+            transaction=payment, line_item=item, reason="Reference CC-1001 found.",
+        )
+        barrier = Barrier(2)
+
+        def approve():
+            # Each request needs its own connection to exercise PostgreSQL row locks.
+            close_old_connections()
+            try:
+                barrier.wait(timeout=10)
+                return APIClient().post(
+                    f"/api/matches/{match.pk}/approve/", HTTP_X_ORGANIZATION="northwind",
+                ).status_code
+            finally:
+                connection.close()
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            requests = [executor.submit(approve) for _ in range(2)]
+            statuses = sorted(request.result(timeout=20) for request in requests)
+
+        self.assertEqual(statuses, [200, 409])
+        item.refresh_from_db()
+        payment.refresh_from_db()
+        self.assertEqual(item.amount_funded, Decimal("1000.00"))
+        self.assertEqual(payment.status, "reconciled")
